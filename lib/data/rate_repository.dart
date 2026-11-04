@@ -41,16 +41,14 @@ class HistoryResult {
 }
 
 class RateRepository {
-  RateRepository({required RateSource source, required RateStore store, DateTime Function()? clock})
-      : _source = source,
-        _store = store,
-        _clock = clock ?? DateTime.now;
+  RateRepository({required this.source, required this.store, DateTime Function()? clock})
+      : _clock = clock ?? DateTime.now;
 
   static const maxFallbackDays = 10;
   static const parallelRequests = 6;
 
-  final RateSource _source;
-  final RateStore _store;
+  final RateSource source;
+  final RateStore store;
   final DateTime Function() _clock;
 
   DateTime get today => dayOnly(_clock());
@@ -69,7 +67,7 @@ class RateRepository {
       }
       throw const SourceUnavailableException('Курсы не найдены за последние 10 дней');
     } on SourceUnavailableException {
-      final cached = await _store.latest();
+      final cached = await store.latest();
       if (cached == null) rethrow;
       return RatesResult(snapshot: cached, requestedDate: requested, offline: true);
     }
@@ -89,7 +87,7 @@ class RateRepository {
           return await _snapshotFor(day);
         } on SourceUnavailableException {
           offline = true;
-          return _store.read(day);
+          return store.read(day);
         }
       }));
       snapshots.addAll(results.whereType<RateSnapshot>());
@@ -104,12 +102,12 @@ class RateRepository {
   /// Сегодняшний день всегда запрашивается заново. null — на эту дату курсов нет.
   Future<RateSnapshot?> _snapshotFor(DateTime day) async {
     if (day.isBefore(today)) {
-      final cached = await _store.read(day);
+      final cached = await store.read(day);
       if (cached != null) return cached;
     }
     try {
-      final snapshot = await _source.fetch(day);
-      await _store.write(snapshot);
+      final snapshot = await source.fetch(day);
+      await store.write(snapshot);
       return snapshot;
     } on NoRatesForDateException {
       return null;
