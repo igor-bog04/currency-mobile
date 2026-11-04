@@ -11,6 +11,7 @@ import 'data/bnm_api.dart';
 import 'data/rate_repository.dart';
 import 'data/rate_store.dart';
 import 'ui/app.dart';
+import 'ui/history_controller.dart';
 import 'ui/rates_controller.dart';
 
 Future<void> main() async {
@@ -23,5 +24,9 @@ Future<void> main() async {
   );
   final rates = RatesController(repository)..load();
 
-  runApp(CurrencyApp(rates: rates));
+  runApp(CurrencyApp(
+    rates: rates,
+    week: HistoryController(repository, days: 7),
+    month: HistoryController(repository, days: 30),
+  ));
 }
