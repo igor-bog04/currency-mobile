@@ -6,7 +6,7 @@ import 'package:xml/xml.dart';
 import '../domain/errors.dart';
 import '../domain/models.dart';
 
-/// Формат: <ValCurs Date="04.11.2026"><Valute><CharCode/><Nominal/><Name/><Value/></Valute>...</ValCurs>.
+/// Формат: `<ValCurs Date="04.11.2026"><Valute><CharCode/><Nominal/><Name/><Value/></Valute>...</ValCurs>`.
 /// Курс 1 единицы валюты в MDL = Value / Nominal.
 RateSnapshot parseBnmXml(String body, DateTime requestedDate) {
   if (body.trim().isEmpty) throw NoRatesForDateException(requestedDate);
